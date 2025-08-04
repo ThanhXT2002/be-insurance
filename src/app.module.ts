@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true, // Để dùng ở mọi nơi không cần import lại
-    }),],
+    }), UsersModule,],
   controllers: [AppController],
   providers: [AppService],
 })
