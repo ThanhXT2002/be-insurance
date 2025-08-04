@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tesst {
+  Column_1 Int? @map("Column 1")
+  Column_2 Int? @map("Column 2")
+
+  @@ignore
+}
+
+/// User model hỗ trợ đa nguồn đăng nhập, phân quyền, thông tin cá nhân, trạng thái
+model User {
+  id                Int       @id @default(autoincrement())
+  email             String?   @unique // Có thể null nếu đăng nhập social
+  password          String?   // Có thể null nếu đăng nhập social
+  emailVerified     Boolean   @default(false)
+  otpSecret         String?   // Lưu secret OTP nếu dùng xác thực 2 lớp
+  otpExpires        DateTime? // Thời gian hết hạn OTP
+
+  // Social login
+  facebookId        String?   @unique
+  googleId          String?   @unique
+  firebaseUid       String?   @unique // Hỗ trợ login qua Firebase
+  appleId String? @unique // Đăng nhập qua Apple
+
+  // JWT, cookie, refresh token
+  refreshToken      String?   // Lưu refresh token nếu cần
+  lastLogin         DateTime?
+
+  // Phân quyền
+  role              UserRole  @default(USER)
+
+  // Thông tin cá nhân
+  avatar            String?
+  fullName          String?
+  phone             String?   @unique
+  province          String?   // Tỉnh/thành phố
+  district          String?   // Quận/huyện
+  ward              String?   // Xã/phường
+  address           String?
+  dateOfBirth       DateTime?
+
+  // Trạng thái tài khoản
+  isActive          Boolean   @default(true)
+  isLocked          Boolean   @default(false)
+  lockReason        String?
+  status            UserStatus @default(PENDING)
+
+  // Audit
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  AGENT
+  SUPERADMIN
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
