@@ -96,3 +96,138 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+project-name/
+│
+├── src/
+│   ├── common/                 # Các thành phần dùng chung
+│   │   ├── constants/           # Hằng số toàn cục
+│   │   ├── decorators/          # Custom decorators (VD: @AuthUser)
+│   │   ├── dto/                 # DTO dùng chung
+│   │   ├── exceptions/          # Custom exceptions
+│   │   ├── filters/              # Exception filters
+│   │   ├── guards/               # Auth guards, role guards
+│   │   ├── interceptors/         # Logging, Transform, Timeout...
+│   │   ├── middlewares/          # Middleware dùng chung
+│   │   └── utils/                # Helper functions
+│   │
+│   ├── config/                  # Config cho env, database, cache...
+│   │   ├── app.config.ts
+│   │   ├── database.config.ts
+│   │   └── redis.config.ts
+│   │
+│   ├── modules/                 # Chia module theo domain
+│   │   ├── auth/
+│   │   │   ├── dto/
+│   │   │   ├── entities/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.module.ts
+│   │   │   └── strategies/       # JWT, Local, OAuth...
+│   │   │
+│   │   ├── users/
+│   │   │   ├── dto/
+│   │   │   ├── entities/
+│   │   │   ├── users.controller.ts
+│   │   │   ├── users.service.ts
+│   │   │   └── users.module.ts
+│   │   │
+│   │   └── ...                   # Các module khác
+│   │
+│   ├── database/                # ORM & Migration
+│   │   ├── entities/
+│   │   ├── migrations/
+│   │   └── seeds/
+│   │
+│   ├── app.module.ts            # Root module
+│   ├── main.ts                  # Bootstrap app
+│   └── swagger.config.ts        # Swagger setup (nếu dùng)
+│
+├── test/                        # Unit & E2E tests
+│   ├── e2e/
+│   └── unit/
+│
+├── .env                         # Môi trường dev
+├── .env.production              # Môi trường production
+├── .eslintrc.js                 # ESLint config
+├── .prettierrc                  # Prettier config
+├── nest-cli.json
+├── package.json
+├── tsconfig.json
+└── README.md
+
+
+1. Sơ đồ cấu trúc module
+
+┌───────────────────────────────────────┐
+│              AppModule                │
+│───────────────────────────────────────│
+│  - Import các module con               │
+│  - Config global (env, pipes, filters) │
+└───────────────────────────────────────┘
+        ▲                 ▲
+        │                 │
+ ┌──────┴───────┐   ┌─────┴────────┐
+ │  AuthModule  │   │  UsersModule │
+ │──────────────│   │──────────────│
+ │ AuthController│  │UsersController│
+ │ AuthService   │  │UsersService   │
+ │ Strategies    │  │Repositories   │
+ │ DTOs & Entities│ │DTOs & Entities│
+ └───────────────┘   └──────────────┘
+        ▲                 ▲
+        │                 │
+   ┌────┴──────────┐  ┌───┴───────────┐
+   │ CommonModule  │  │ DatabaseModule │
+   │ (guards,      │  │ (ORM, Models,  │
+   │ filters,      │  │ Migrations)    │
+   │ interceptors) │  └────────────────┘
+   └───────────────┘
+
+2. Luồng Request – Response trong NestJS
+[1] Client gửi HTTP Request
+       |
+       v
+[2] Router mapping
+    (Dựa trên Controller + Decorator @Get, @Post...)
+       |
+       v
+[3] Guard (nếu có)
+    - Ví dụ: AuthGuard, RoleGuard
+    - Chặn hoặc cho phép request tiếp tục
+       |
+       v
+[4] Interceptor (Trước khi vào Controller)
+    - LoggingInterceptor: log request
+    - TransformInterceptor: format response
+    - CacheInterceptor: lấy cache nếu có
+       |
+       v
+[5] Controller
+    - Nhận request DTO
+    - Gọi Service để xử lý nghiệp vụ
+       |
+       v
+[6] Service
+    - Xử lý logic nghiệp vụ
+    - Gọi Repository/Database hoặc module khác
+       |
+       v
+[7] Repository / ORM / Database
+    - Thực hiện query
+    - Trả dữ liệu về Service
+       |
+       v
+[8] Service trả kết quả về Controller
+       |
+       v
+[9] Interceptor (Sau khi Controller trả dữ liệu)
+    - Biến đổi dữ liệu trả về, log response...
+       |
+       v
+[10] Response gửi lại Client
+
+
+## sơ đồ sequence UML cho luồng request trong NestJS:
+<img src="/public/images/nestjs_request_flow.png"/>

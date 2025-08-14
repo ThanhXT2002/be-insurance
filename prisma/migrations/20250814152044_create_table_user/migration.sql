@@ -21,7 +21,7 @@ CREATE TABLE "public"."User" (
     "facebookId" TEXT,
     "googleId" TEXT,
     "firebaseUid" TEXT,
-    "appAccountId" TEXT,
+    "appleId" TEXT,
     "refreshToken" TEXT,
     "lastLogin" TIMESTAMP(3),
     "role" "public"."UserRole" NOT NULL DEFAULT 'USER',
@@ -56,7 +56,7 @@ CREATE UNIQUE INDEX "User_googleId_key" ON "public"."User"("googleId");
 CREATE UNIQUE INDEX "User_firebaseUid_key" ON "public"."User"("firebaseUid");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_appAccountId_key" ON "public"."User"("appAccountId");
+CREATE UNIQUE INDEX "User_appleId_key" ON "public"."User"("appleId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_phone_key" ON "public"."User"("phone");
