@@ -16,7 +16,7 @@ export class UploadController {
   @ApiBody({
     schema: {
       type: 'object',
-      properties: {
+      properties: {  
         file: {
           type: 'string',
           format: 'binary',
